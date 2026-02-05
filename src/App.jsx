@@ -80,7 +80,7 @@ const DotGridSelector = ({ padPos, setPadPos }) => {
       onTouchStart={handleInteraction}
       onTouchMove={handleInteraction}
     >
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 text-[8px] font-black text-zinc-400 tracking-[0.3em] uppercase z-10">2人前 (多め)</div>
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 text-[8px] font-black text-zinc-400 tracking-[0.3em] uppercase z-10">3人前 (多め)</div>
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[8px] font-black text-zinc-400 tracking-[0.3em] uppercase z-10">1人前 (少なめ)</div>
       <div className="absolute left-1 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] font-black text-zinc-400 tracking-[0.3em] uppercase z-10">浅煎り</div>
       <div className="absolute right-1 top-1/2 -translate-y-1/2 rotate-90 text-[8px] font-black text-zinc-400 tracking-[0.3em] uppercase z-10">深煎り</div>
@@ -131,14 +131,41 @@ const App = () => {
   // Wake Lock Ref
   const wakeLockRef = useRef(null);
 
-  const coffeeWeight = Math.round(12 + (padPos.y * 12));
+  const coffeeWeight = Math.round(8 + (padPos.y * 28));
   const totalWater = coffeeWeight * 15;
   const waterTemp = Math.round(93 - (padPos.x * 11));
   
   const grind = useMemo(() => {
-    if (padPos.x < 0.3) return { label: '中粗挽き', desc: 'ザラメ程度' };
-    return { label: '粗挽き', desc: '岩塩・粗塩程度' };
-  }, [padPos.x]);
+    let grindLabel = '';
+    let grindDesc = '';
+
+    if (padPos.y < 0.33) { // Primarily 1 serving
+      if (padPos.x < 0.5) { // Light roast
+        grindLabel = '中細挽き'; // Medium-fine
+        grindDesc = 'グラニュー糖程度';
+      } else { // Dark roast
+        grindLabel = '中挽き'; // Medium
+        grindDesc = 'ザラメ程度';
+      }
+    } else if (padPos.y < 0.66) { // Primarily 2 servings
+      if (padPos.x < 0.5) { // Light roast
+        grindLabel = '中挽き'; // Medium
+        grindDesc = 'ザラメ程度';
+      } else { // Dark roast
+        grindLabel = '中粗挽き'; // Medium-coarse
+        grindDesc = '粗塩程度';
+      }
+    } else { // Primarily 3 servings
+      if (padPos.x < 0.5) { // Light roast
+        grindLabel = '中粗挽き'; // Medium-coarse
+        grindDesc = '粗塩程度';
+      } else { // Dark roast
+        grindLabel = '粗挽き'; // Coarse
+        grindDesc = '岩塩程度';
+      }
+    }
+    return { label: grindLabel, desc: grindDesc };
+  }, [padPos.x, padPos.y]);
 
   const recipe = useMemo(() => {
     const first40 = totalWater * 0.4;
